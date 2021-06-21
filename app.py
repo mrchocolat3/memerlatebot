@@ -61,7 +61,7 @@ def memer(update: Update, context: CallbackContext) -> None:
     if cmd.startswith("/bruh"):
         if(update.message.photo):
             
-            update.message.reply_text("Making the meme... " + update.effective_user.mention_markdown_v2())
+            update.message.reply_markdown_v2(r"Making the meme\.\.\. " + update.effective_user.mention_markdown_v2())
 
             text = cmd.replace("/bruh", "").split(';')
 
@@ -70,6 +70,7 @@ def memer(update: Update, context: CallbackContext) -> None:
                 Image = ImageEngine(text[0], text[1])
 
                 file = Image.draw(url)
+                # update.message.delete()
                 update.message.reply_photo(file, 'Hope you like it!')
 
             except Exception as e:

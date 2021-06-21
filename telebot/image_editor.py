@@ -86,10 +86,10 @@ class ImageEngine:
         imageWidth, imageHeight = self.get_image_dimensions(self.image)
         lines = textwrap.wrap(self.txtTop, width= 0.0625 * imageWidth)
         
+        self.update_font_size_t(lines[0])
         TopY = self.padding  # imageHeight - 800  # imageHeight / 2
+        
         for line in lines:
-            self.update_font_size_t(line)
-
             fWidth, fHeight = self.font_t.getsize(line)
             self.drawText(
                 (((imageWidth / 2) - (fWidth / 2)) , TopY), 
@@ -102,17 +102,16 @@ class ImageEngine:
         lines = textwrap.wrap(self.txtBottom, width= 0.0625 * imageWidth)
         lines.reverse()
         
-        textPadding = self.font_b.getsize(lines[-1])[1]
+        self.update_font_size_b(lines[0])   
+        
+        textPadding = self.font_b.getsize(lines[0])[1]
         BottomY = imageHeight - textPadding - self.padding   # imageHeight - 800  # imageHeight / 2
+        
         for line in lines:
-            self.update_font_size_b(line)
-
             fWidth, fHeight = self.font_b.getsize(line)
-
             centerX = (imageWidth / 2) - (fWidth / 2) # 780  # imageWidth / 2
-
             self.drawText((centerX, BottomY), line, Color.White, self.font_b)
-            BottomY -= fHeight - (textPadding / 2) - self.padding
+            BottomY -= fHeight 
         
     def get_image_dimensions(self, Image):
         return Image.size
