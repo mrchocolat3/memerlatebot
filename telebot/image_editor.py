@@ -2,6 +2,7 @@ from PIL import Image, ImageFont, ImageDraw
 import requests
 import os
 import textwrap
+from colorsys import rgb_to_hsv, hsv_to_rgb
 from io import BytesIO
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +16,7 @@ class Color:
     DarkGreen = (47, 148, 54)
     LightGreen = (70, 212, 80)
 
-    White = (20, 20, 20)
+    White = (250, 250, 250)
     Black = (20, 20, 20)
 
     Tomato = (219, 50, 50)
@@ -47,7 +48,14 @@ class TextEngine:
 
 
 class ImageEngine:
-    def __init__(self, text_top, text_bottom):
+    def __init__(
+        self, 
+        text_top, 
+        text_bottom, 
+        randomColor = False,
+        topColor = False,
+        bottomColor = False
+        ):
         self.font_size_t = 1  # default
         self.font_size_b = 1
         self.font_t = ImageFont.truetype(fontP, self.font_size_t)
@@ -60,6 +68,11 @@ class ImageEngine:
         self.line_width = 50
 
         self.textEngine = TextEngine()
+        self.colorEngine = ColorEngine()
+
+        self.randomColor= randomColor
+        self.topColor= topColor
+        self.bottomColor= bottomColor
 
     def get_text_dimensions(self, text_string, font):
         descent = font.getmetrics()[1]
@@ -88,11 +101,12 @@ class ImageEngine:
         self.update_font_size_t(lines[0])
         TopY = self.padding  # imageHeight - 800  # imageHeight / 2
         
+    
         for line in lines:
             fWidth, fHeight = self.font_t.getsize(line)
             self.drawText(
                 (((imageWidth / 2) - (fWidth / 2)) , TopY), 
-                line, Color.White, self.font_t
+                line, self.color, self.font_t
                 )
             TopY += fHeight
 
@@ -103,13 +117,14 @@ class ImageEngine:
         
         self.update_font_size_b(lines[0])   
         
+
         textPadding = self.font_b.getsize(lines[0])[1]
         BottomY = imageHeight - textPadding - self.padding   # imageHeight - 800  # imageHeight / 2
         
         for line in lines:
             fWidth, fHeight = self.font_b.getsize(line)
             centerX = (imageWidth / 2) - (fWidth / 2) # 780  # imageWidth / 2
-            self.drawText((centerX, BottomY), line, Color.White, self.font_b)
+            self.drawText((centerX, BottomY), line, self.color, self.font_b)
             BottomY -= fHeight 
         
     def get_image_dimensions(self, Image):
@@ -122,6 +137,7 @@ class ImageEngine:
         """ Gets images from URL """
         self.image = Image.open(requests.get(url, stream=True).raw)
         self.imageEditable = ImageDraw.Draw(self.image)
+        self.color = self.colorEngine.get_colors(self.image) if self.randomColor else Color.White
 
     def draw(self, url) -> BytesIO:
         bio = BytesIO()
@@ -140,6 +156,43 @@ class ImageEngine:
         self.draw_bottom()
         self.image.show()
 
+
+class ColorEngine:
+    def __init__(self):
+        pass
+
+    def get_colors(self, image: Image.Image) -> tuple:
+        avgCol = self.compute_average_image_color(image)
+
+        aR = avgCol[0]
+        aG = avgCol[1]
+        aB = avgCol[2]
+        if aR > 125 and aG > 125 and aB > 125: return (20, 20, 20)
+        else: return (250, 250, 250)
+
+    
+    def compute_average_image_color(self, img):
+        width, height = img.size
+
+        r_total = 0
+        g_total = 0
+        b_total = 0
+
+        count = 0
+        for x in range(0, width):
+            for y in range(0, height):
+                r, g, b = img.getpixel((x,y))
+                r_total += r
+                g_total += g
+                b_total += b
+                count += 1
+
+        return (round(r_total/count), round(g_total/count), round(b_total/count))
+
+    def get_complementary(self, r, g, b):
+        """returns RGB components of complementary color"""
+        hsv = rgb_to_hsv(r, g, b)
+        return hsv_to_rgb((hsv[0] + 0.5) % 1, hsv[1], hsv[2])
 
 if __name__ == "__main__":
     text1 = input("Text on Top: ")

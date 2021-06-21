@@ -63,21 +63,29 @@ def memer(update: Update, context: CallbackContext) -> None:
             
             update.message.reply_markdown_v2(r"Making the meme\.\.\. " + update.effective_user.mention_markdown_v2())
 
-            text = cmd.replace("/bruh", "").split(';')
+            commands = cmd.replace("/bruh", "").split(';')
+            if len(commands) > 2:
+                top_msg = commands[0]
+                bottom_msg = commands[1]
+                random_color = commands[2]
+            else:
+                top_msg = commands[0]
+                bottom_msg = commands[1]
+                random_color = False
 
-            try:
-                url = update.message.photo.pop().get_file(30).file_path
-                Image = ImageEngine(text[0], text[1])
+            #try:
+            url = update.message.photo.pop().get_file(30).file_path
+            Image = ImageEngine(top_msg, bottom_msg, random_color)
 
-                file = Image.draw(url)
-                # update.message.delete()
-                update.message.reply_photo(file, 'Hope you like it!')
+            file = Image.draw(url)
+            # update.message.delete()
+            update.message.reply_photo(file, 'Hope you like it!')
 
-            except Exception as e:
-                update.message.reply_markdown_v2(f"{update.effective_user.mention_markdown_v2()}"
-                + f"\n**[ERROR]**: {e}"
-                + "\n"
-                + "\n**USAGE**: `/bruh top message ; bottom message`")
+            # except Exception as e:
+            #     update.message.reply_markdown_v2(f"{update.effective_user.mention_markdown_v2()}"
+            #     + f"\n**[ERROR]**: {e}"
+            #     + "\n"
+            #     + "\n**USAGE**: `/bruh top message ; bottom message`")
 
             # print(text)
         else:
