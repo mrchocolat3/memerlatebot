@@ -48,8 +48,8 @@ class TextEngine:
 
 class ImageEngine:
     def __init__(self, text_top, text_bottom):
-        self.font_size_t = 30  # default
-        self.font_size_b = 30
+        self.font_size_t = 1  # default
+        self.font_size_b = 1
         self.font_t = ImageFont.truetype(fontP, self.font_size_t)
         self.font_b = ImageFont.truetype(fontP, self.font_size_b)
         self.txtTop = text_top
@@ -57,7 +57,7 @@ class ImageEngine:
 
         self.width_ratio = 0.75
         self.padding = 10
-        self.line_width = 70
+        self.line_width = 50
 
         self.textEngine = TextEngine()
 
@@ -68,7 +68,6 @@ class ImageEngine:
         text_height = font.getmask(text_string).getbbox()[3] + descent
 
         return [text_width, text_height]
-    
 
     def update_font_size_t(self, text: str) -> None:
 
@@ -78,13 +77,13 @@ class ImageEngine:
 
     def update_font_size_b(self, text: str) -> None:
         font_size_b =  self.textEngine.find_font_size(
-            text, fontP, self.font_size_b, self.image, self.width_ratio)
+            text, fontP, self.font_size_b, self.image, self.line_width)
         self.font_b = ImageFont.truetype(fontP, font_size_b)
 
 
     def draw_top(self):
         imageWidth, imageHeight = self.get_image_dimensions(self.image)
-        lines = textwrap.wrap(self.txtTop, width= 0.0625 * imageWidth)
+        lines = textwrap.wrap(self.txtTop, width=self.get_font_length())
         
         self.update_font_size_t(lines[0])
         TopY = self.padding  # imageHeight - 800  # imageHeight / 2
@@ -99,7 +98,7 @@ class ImageEngine:
 
     def draw_bottom(self):
         imageWidth, imageHeight = self.get_image_dimensions(self.image)
-        lines = textwrap.wrap(self.txtBottom, width= 0.0625 * imageWidth)
+        lines = textwrap.wrap(self.txtBottom, width= self.get_font_length())
         lines.reverse()
         
         self.update_font_size_b(lines[0])   
