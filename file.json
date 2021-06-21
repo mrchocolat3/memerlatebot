@@ -1,0 +1,75 @@
+{
+     "message": {
+          "group_chat_created": false,
+          "delete_chat_photo": false,
+          "forward_date": 1624296851,
+          "new_chat_members": [],
+          "new_chat_photo": [],
+          "caption": "/bruh hi there I have to go to the next generation of gpt because I have no idea what is going on with you and your family ; you can use it for a long time to get grub hub for you to come to think about it is it is a good time to come over and watch the game.",
+          "caption_entities": [
+               {
+                    "type": "bot_command",
+                    "offset": 0,
+                    "length": 5
+               }
+          ],
+          "supergroup_chat_created": false,
+          "photo": [
+               {
+                    "width": 90,
+                    "file_id": "AgACAgUAAx0CRwqA3QACAZFg0M8dLkvdyZrDjE3BMnjDNcjoDQAC86wxG6rHiFbX5FNVpwQ9H2WFfnJ0AAMBAAMCAANzAAOqlgACHwQ",
+                    "file_unique_id": "AQADZYV-cnQAA6qWAAI",
+                    "file_size": 1431,
+                    "height": 64
+               },
+               {
+                    "width": 320,
+                    "file_id": "AgACAgUAAx0CRwqA3QACAZFg0M8dLkvdyZrDjE3BMnjDNcjoDQAC86wxG6rHiFbX5FNVpwQ9H2WFfnJ0AAMBAAMCAANtAAOrlgACHwQ",
+                    "file_unique_id": "AQADZYV-cnQAA6uWAAI",
+                    "file_size": 17541,
+                    "height": 226
+               },
+               {
+                    "width": 912,
+                    "file_id": "AgACAgUAAx0CRwqA3QACAZFg0M8dLkvdyZrDjE3BMnjDNcjoDQAC86wxG6rHiFbX5FNVpwQ9H2WFfnJ0AAMBAAMCAAN5AAOplgACHwQ",
+                    "file_unique_id": "AQADZYV-cnQAA6mWAAI",
+                    "file_size": 57825,
+                    "height": 644
+               },
+               {
+                    "width": 800,
+                    "file_id": "AgACAgUAAx0CRwqA3QACAZFg0M8dLkvdyZrDjE3BMnjDNcjoDQAC86wxG6rHiFbX5FNVpwQ9H2WFfnJ0AAMBAAMCAAN4AAOslgACHwQ",
+                    "file_unique_id": "AQADZYV-cnQAA6yWAAI",
+                    "file_size": 63106,
+                    "height": 565
+               }
+          ],
+          "date": 1624297245,
+          "forward_from": {
+               "username": "MrChocolat3",
+               "language_code": "en",
+               "is_bot": false,
+               "first_name": "Mr",
+               "last_name": "Ch0c0lat3",
+               "id": 1470134903
+          },
+          "entities": [],
+          "channel_chat_created": false,
+          "message_id": 401,
+          "chat": {
+               "username": "MemerlateBotTest101",
+               "type": "supergroup",
+               "title": "Memerlatebot Test",
+               "id": -1001191870685
+          },
+          "from": {
+               "username": "MrChocolat3",
+               "language_code": "en",
+               "is_bot": false,
+               "first_name": "Mr",
+               "last_name": "Ch0c0lat3",
+               "id": 1470134903
+          }
+     },
+     "update_id": 636496680
+}
