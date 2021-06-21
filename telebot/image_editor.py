@@ -15,7 +15,7 @@ class Color:
     DarkGreen = (47, 148, 54)
     LightGreen = (70, 212, 80)
 
-    White = (255, 255, 255)
+    White = (20, 20, 20)
     Black = (20, 20, 20)
 
     Tomato = (219, 50, 50)
@@ -77,13 +77,13 @@ class ImageEngine:
 
     def update_font_size_b(self, text: str) -> None:
         font_size_b =  self.textEngine.find_font_size(
-            text, fontP, self.font_size_b, self.image, self.line_width)
+            text, fontP, self.font_size_b, self.image, self.width_ratio)
         self.font_b = ImageFont.truetype(fontP, font_size_b)
 
 
     def draw_top(self):
         imageWidth, imageHeight = self.get_image_dimensions(self.image)
-        lines = textwrap.wrap(self.txtTop, width=self.get_font_length())
+        lines = textwrap.wrap(self.txtTop, width=self.line_width)
         
         self.update_font_size_t(lines[0])
         TopY = self.padding  # imageHeight - 800  # imageHeight / 2
@@ -98,7 +98,7 @@ class ImageEngine:
 
     def draw_bottom(self):
         imageWidth, imageHeight = self.get_image_dimensions(self.image)
-        lines = textwrap.wrap(self.txtBottom, width= self.get_font_length())
+        lines = textwrap.wrap(self.txtBottom, width= self.line_width)
         lines.reverse()
         
         self.update_font_size_b(lines[0])   
