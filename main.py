@@ -1,63 +1,163 @@
-import re
-from flask import Flask, request
-import telegram
+#!/usr/bin/env python
+# pylint: disable=C0116,W0613
+# This program is dedicated to the public domain under the CC0 license.
 
-global bot
-global TOKEN
-TOKEN = bot_token
-bot = telegram.Bot(token=TOKEN)
+"""
+First, a few callback functions are defined. Then, those functions are passed to
+the Dispatcher and registered at their respective places.
+Then, the bot is started and runs until we press Ctrl-C on the command line.
+Usage:
+Example of a bot-user conversation using ConversationHandler.
+Send /start to initiate the conversation.
+Press Ctrl-C on the command line or send a signal to the process to stop the
+bot.
+"""
 
-app = Flask(__name__)
+import logging
+from telebot.image_editor import ImageEngine
+from telebot.credentials import bot_token as TOKEN
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, Bot
+from telegram.ext import (
+    Updater,
+    CommandHandler,
+    MessageHandler,
+    Filters,
+    ConversationHandler,
+    CallbackContext,
+)
 
-@app.route('/{}'.format(TOKEN), methods=['POST'])
-def respond():
-   # retrieve the message in JSON and then transform it to Telegram object
-   update = telegram.Update.de_json(request.get_json(force=True), bot)
+TOP_MSG_TXT = str()
+BTM_MSG_TXT = str()
+IMG = str()
+MSG_IDS = list()
 
-   chat_id = update.message.chat.id
-   msg_id = update.message.message_id
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
 
-   # Telegram understands UTF-8, so encode text for unicode compatibility
-   text = update.message.text.encode('utf-8').decode()
-   # for debugging purposes only
-   print("got text message :", text)
-   # the first time you chat with the bot AKA the welcoming message
-   if text == "/start":
-       # print the welcoming message
-       bot_welcome = """
-       Welcome to coolAvatar bot, the bot is using the service from http://avatars.adorable.io/ to generate cool looking avatars based on the name you enter so please enter a name and the bot will reply with an avatar for your name.
-       """
-       # send the welcoming message
-       bot.sendMessage(chat_id=chat_id, text=bot_welcome, reply_to_message_id=msg_id)
+logger = logging.getLogger(__name__)
 
 
-   else:
-       try:
-           # clear the message we got from any non alphabets
-           text = re.sub(r"\W", "_", text)
-           # create the api link for the avatar based on http://avatars.adorable.io/
-           url = "https://api.adorable.io/avatars/285/{}.png".format(text.strip())
-           # reply with a photo to the name the user sent,
-           # note that you can send photos by url and telegram will fetch it for you
-           bot.sendPhoto(chat_id=chat_id, photo=url, reply_to_message_id=msg_id)
-       except Exception:
-           # if things went wrong
-           bot.sendMessage(chat_id=chat_id, text="There was a problem in the name you used, please enter different name", reply_to_message_id=msg_id)
 
-   return 'ok'
+PHOTO = 0
 
-@app.route('/set_webhook', methods=['GET', 'POST'])
-def set_webhook():
-   s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
-   if s:
-       return "webhook setup ok"
-   else:
-       return "webhook setup failed"
+def addID(id):
+    global MSG_IDS
+    MSG_IDS.append(id)
 
-@app.route('/')
-def index():
-   return '.'
+
+def clearEverything():
+    global TOP_MSG_TXT, BTM_MSG_TXT, IMG
+
+    TOP_MSG_TXT = str()
+    BTM_MSG_TXT = str()
+    IMG = None
+    MSG_IDS.clear()
+    logger.info("Cleared Everthing!")
+
+
+def start(update: Update, context: CallbackContext) -> int:
+    """Starts the conversation and asks the user about top message"""
+    global TOP_MSG_TXT, BTM_MSG_TXT
+
+    commands = update.message.text.replace("/bruh", "").split(';')
+    try:
+        top_msg = commands[0]
+        bottom_msg = commands[1]
+    except IndexError:
+        update.message.reply_markdown_v2(
+            'How to use: `/bruh <top message> ; <bottom message>`'
+        )
+        return ConversationHandler.END
+    
+    
+    TOP_MSG_TXT = top_msg
+    BTM_MSG_TXT = bottom_msg
+
+    addID(update.message.message_id)
+    update.message.reply_text(
+        'Cool, now send me the meme template'
+        'Send /cancel to stop talking to me.\n\n'
+    )
+
+    print(update.message.text)
+    return PHOTO
+
+
+def photo(update: Update, context: CallbackContext) -> int:
+    """Stores the photo"""
+    global IMG, TOP_MSG_TXT, BTM_MSG_TXT, MSG_IDS
+
+    user = update.message.from_user
+    IMG = update.message.photo[-1].get_file().file_path
+    
+    addID(update.message.message_id)
+    logger.info("Photo of %s: %s", user.first_name, IMG)
+
+
+    update.message.reply_text(
+        'Gorgeous! Making the meme, please wait.'
+    )
+    
+    Image = ImageEngine(TOP_MSG_TXT, BTM_MSG_TXT, "rc")
+    file = Image.draw(IMG)
+    
+    bot = Bot(TOKEN)
+    try:
+        update.message.reply_photo(file, 'Hope you will like it!')
+        for id in MSG_IDS:
+            bot.delete_message(update.message.chat_id, id)
+
+    except Exception as e:
+        update.message.reply_text("I need delete message permission!")
+        update.message.reply_text(e)
+        clearEverything()
+        return ConversationHandler.END
+        
+    clearEverything()
+    return ConversationHandler.END
+
+
+def cancel(update: Update, context: CallbackContext) -> int:
+    """Cancels and ends the conversation."""
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text(
+        'Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove()
+    )
+
+    clearEverything()
+    return ConversationHandler.END
+
+
+def main() -> None:
+    """Run the bot."""
+    # Create the Updater and pass it your bot's token.
+    updater = Updater(TOKEN)
+    
+
+    # Get the dispatcher to register handlers
+    dispatcher = updater.dispatcher
+    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('bruh', start)],
+        states={
+            PHOTO: [MessageHandler(Filters.photo, photo)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)],
+    )
+
+    dispatcher.add_handler(conv_handler)
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 
 if __name__ == '__main__':
-   app.run(threaded=True)
+    main()
